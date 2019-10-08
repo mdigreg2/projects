@@ -1,0 +1,5 @@
+traversability_all:
+- '$(find aggressive-navigation)/launch/include/traversability/tixiao_bgk.launch.xml'
+
+traversability_tixiao_bgk:
+- '$(find aggressive-navigation)/launch/include/traversability/tixiao_bgk.launch.xml'

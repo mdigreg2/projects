@@ -1,0 +1,106 @@
+#+TITLE: Aggressive Navigation
+#+AUTHOR: Paul Szenher, Michael DiGregorio, Jonathan Gomis
+
+This repository contains code for an aggressive navigation system for ROS compatible UGVs.  The package serves to plan valid paths for a ground vehicle across large stretches of sparsely-sensed terrain.
+* Note of changes 
+Changed conversions.h to include message handling for TraversabilityOcTree
+changed octomap_msgs to include TraversabilityOcTree.h
+Changed OctomapServer.h
+
+TraverseOctomapServer -> kernel"""
+OctomapServer -> Traversabilityoctomap....
+octonap_server_node -> octomap_kernel_nade
+TraversabilityOcTree  + node
+CMake direct link TraversabilityOcTree to planar_map
+
+Changing TraverseOctomapServer.h to pull from TraversabilityOctomapServer.h
+
+
+
+Checklist 
+conversions.h
+octomap_msgs (handled in the serialization messages)
+OctomapServer.h , .cpp -> TraversabilityOctomapServer.h , .cpp
+OcTree(Node).h, .cpp -> TraversabilityOcTree(Node).h, .cpp
+TraverseOctomapServer.h, .cpp -> KernelOctomapServer.h, .cpp
+octomap_traversability_node.h, .cpp -> octomap_kernel_node.h, .cpp
+
+* Dependencies
+The dependencies for this package are listed as follows:
+- ~octomap~
+- ~octomap_ros~
+- ~octomap_server~
+- [[https://github.com/TixiaoShan/jackal_velodyne][~jackal_velodyne~]]
+
+The apt dependencies can be installed via the following command (replacing kinetic with the desired ROS version if necessary):
+#+BEGIN_SRC bash
+sudo apt install ros-kinetic-octomap* ros-kinetic-jackal-* ros-kinetic-velodyne-*
+#+END_SRC
+
+~jackal_velodyne~ must be compiled from source, and can be done so with the following commands:
+#+BEGIN_SRC bash
+cd ~/catkin_ws/src
+git clone https://github.com/TixiaoShan/jackal_velodyne.git
+cd ..
+catkin_make
+#+END_SRC
+
+* Navigation Benchmarking
+Available navigation methods can be evaluated using the [[./launch/benchmark.launch][benchmark.launch]] file.  This launch file invokes a full gazebo simulation of the [[https://clearpathrobotics.com/jackal-small-unmanned-ground-vehicle/][Clearpath Jackal UGV]] using the [[http://wiki.ros.org/jackal_gazebo][jackal_gazebo]] package, with [[https://velodynelidar.com/vlp-16.html][VLP-16 LIDAR]] simulation provided by the [[https://github.com/TixiaoShan/jackal_velodyne][jackal_velodyne]] package.  
+
+Atop this simulated, localized robot framework, a series of traversibilty esitmation and path planning algorithms are evaluted.  In order to run multiple isolated simulations consecutively, the simulated environment, localization system, and map must be reset at the end of each run.  This is accomplished via the following methods:
+- [[http://gazebosim.org/][Gazebo]]
+  - Restart gazebo with new world file via [[http://wiki.ros.org/roslaunch/API%20Usage][rospy roslaunch api]]
+  - Invalid, reset services cause tf issues +Call [[http://gazebosim.org/tutorials/?tut=ros_comm][/reset_world or /reset_simulation]] ROS service+
+    - +~/reset_world~: resets model poses+
+    - +~/reset_simulation~: resets entire simulation including time+
+- [[https://github.com/RobustFieldAutonomyLab/traversability_mapping][traversability_mapping]]
+  - Invoke different configuration after each run using [[http://wiki.ros.org/roslaunch/API%20Usage][rospy roslaunch api]] with manager node
+- Path Planning
+  - Invoke different configuration after each run using [[http://wiki.ros.org/roslaunch/API%20Usage][rospy roslaunch api]] with manager node
+- Robot Stack
+  - A set of miscellaneous packages central to the functionality of the simulated robot:
+    - [[https://github.com/RobustFieldAutonomyLab/LeGO-LOAM][LeGO-LOAM]]
+    - [[http://wiki.ros.org/move_base][move_base]]
+  - Restart nodes after each run using [[http://wiki.ros.org/roslaunch/API%20Usage][rospy roslaunch api]] with manager node
+
+** Gazebo Configuration
+In order to store persistent destination positions for each world file, a special gazebo model is included at each world's desire target position.  This model is a modified version of the Gazebo default ~Cube 20k~ model.  
+
+This model is referred to as [[./models/goal_position/model.sdf][goal_position]], and is set to be a static, collision-free object of size 0.5m.  The reason for this formatting is the ease with which new worlds can be implemented, as a permanant goal position can be set visually within the Gazebo GUI.  These included objects are parsed from the world file xml, and used to set the goal position for the current run of the benchmarking simulation.
+
+TODO: Implement optional sequential goal points, by parsing for object names of the convention ~goal_position_0~ ... ~goal_position_n~.
+
+For reference, the ~GAZEBO_MODEL_PATH~ environment variable is set with a special xml tag in [[./package.xml][package.xml]], using the special syntax seen below:
+
+#+BEGIN_SRC xml
+  <export>
+      <!-- gazebo_ros_paths_plugin automatically adds these to
+          GAZEBO_PLUGIN_PATH and GAZEBO_MODEL_PATH when you do this export inside
+          the package.xml file. You can than use URIs of type model://my_package/stuff. -->
+      <gazebo_ros                                                                 
+          gazebo_plugin_path="${prefix}/lib"
+          gazebo_model_path="${prefix}/models" /> 
+  </export>
+#+END_SRC
+
+Note that in order to use the above package.xml snippet,  the [[http://wiki.ros.org/gazebo_ros_control][gazebo_ros_control]] package must be installed.
+
+*** World XML Validation
+    In order to ensure that the goal_position model is present in world files, the command line tool [[./src/gazebo_world_validator.py][gazebo_world_validator.py]] is included.  This tool is a ROS node that can be invoked via rosrun or as a python script, and accepts one or more world files as command line arguments.  The validator will parse each file, checking for valid xml syntax and existence of the goal position object.  If the model exists, the pose will be output.  If not, the user is prompted to open the world in Gazebo and add the goal_position object.  Once added, the the Gazebo ~Save As~ prompt should be used to overwrite the previous world.  
+
+If the ~pyperclip~ python package is installed, the full path of the world file will be sent to the system clipboard, which can be pasted into the ~Save As~ prompt.
+
+* Octomap Examples
+Contained in the examples folder are examples displaying syntax for working with octomaps. They are listed below:
+
+** [[./example/octomap_pubsub.cpp][octomap_pubsub]]
+Subscribes to octomap topics and storing internal OcTree object.  Prints simple statement of node count to console.  Continuously makes map requests every time the octomap is changed until killed.  Publication syntax is writted but commented, as it should be written as a class.
+
+** [[./example/octomap_service.cpp][octomap_service]]
+Generates simple service request to octomap service to recieve octomap data on command.  Issues single request and returns.
+
+** TODO octomap_pubsub_class
+Simple example of octomap publication and subscription using a class
+* Paper References
+[1]P. Krüsi, P. Furgale, M. Bosse, and R. Siegwart, “Driving on Point Clouds: Motion Planning, Trajectory Optimization, and Terrain Assessment in Generic Nonplanar Environments,” Journal of Field Robotics, vol. 34, no. 5, pp. 940–984, 2017.

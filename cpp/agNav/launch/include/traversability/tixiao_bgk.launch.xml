@@ -1,0 +1,5 @@
+<launch>
+  <!--- Run Traversability Mapping -->
+  <node pkg="traversability_mapping" type="traversability_filter"  name="traversability_filter"  output="screen"/>
+  <node pkg="traversability_mapping" type="traversability_map"     name="traversability_map"     output="screen"/>
+</launch>

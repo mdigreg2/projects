@@ -1,0 +1,23 @@
+#+TITLE: Aggressive Navigation Documentation and Implementation
+#+AUTHOR: Paul Szenher, Michael DiGregorio, Jonathan Gomis
+
+* Abstract
+The purpose of this package is to provide a generalized framework for LIDAR-equipped ground vehicles to navigate in previously unmapped environments.
+As the objective is to simply come up with a functional representation of traversable vs nontraversable ground, the robot will not be focused on mapping the world around it.
+It will be focused on classifying the world around it as quickly as possible. This will be achieved through 3D convolution of a 3D kernel through a generated occupancy map of the environment. This kernel represents the "minimum traversable unit" for the ground vehicle. It is made of a volume of free space large enough to fully encapsulate the robot,but not much larger, resting on occupied space of the same XY cross-sectional area. 
+
+* Navigation Benchmarking
+
+
+* Traversability Octomap
+** Kernel Convolution
+** TraversabilityOcTree
+** TraversabilityOctomapServer
+
+
+* Configuration
+
+
+* Installation
+** Usage
+

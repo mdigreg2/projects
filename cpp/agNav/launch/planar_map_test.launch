@@ -1,0 +1,69 @@
+<launch>
+  <!-- Sim Time -->
+  <arg name="use_sim_time" default="true" />
+
+  <!-- Gazebo Simulation Arguments -->
+  <arg name="gui" default="false" />
+  <arg name="headless" default="false" />
+  <arg name="world_name" default="$(find aggressive-navigation)/worlds/cylinders.world" />
+
+  <!-- Launch Gazebo with the specified world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug" value="0" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="use_sim_time" value="$(arg use_sim_time)" />
+    <arg name="headless" value="$(arg headless)" />
+    <arg name="world_name" value="$(arg world_name)" />
+  </include>
+
+  <!-- Configuration of Jackal which you would like to simulate.
+       See jackal_description for details. -->
+  <arg name="config" default="base" />
+  
+  <!-- Control -->
+  <include file="$(find aggressive-navigation)/launch/include/gazebo/jackal_bringup.launch">
+    <arg name="config" value="$(arg config)" />
+  </include>
+
+  <!--- TF -->
+  <node pkg="tf" type="static_transform_publisher" name="velodyne_base_link" args="0 0 0 0 0 0 /base_link /velodyne 10" />
+  <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0 0 0 1.570795   0        1.570795 /map    /camera_init 10" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera" args="0 0 0 -1.570795 -1.570795 0        /camera /base_link   10" />
+
+  <!--- Lidar Odometry -->    
+  <node pkg="lego_loam" type="imageProjection"    name="imageProjection"    output="screen"/>
+  <node pkg="lego_loam" type="featureAssociation" name="featureAssociation" output="screen"/>
+  <node pkg="lego_loam" type="mapOptmization"     name="mapOptmization"     output="screen"/>
+  <node pkg="lego_loam" type="transformFusion"    name="transformFusion"    output="screen"/>
+
+  <!--- Run Rviz (launch-prefix="nice" for lower cpu usage)-->
+  <node pkg="rviz" type="rviz" name="rviz" output="log" args="-d $(find aggressive-navigation)/rviz/planar_map.rviz" />
+  
+  <!--- Run Traversability Mapping -->    
+  <node pkg="traversability_mapping" type="traversability_filter"  name="traversability_filter"  output="screen"/>
+  <node pkg="traversability_mapping" type="traversability_map"     name="traversability_map"     output="screen"/>
+  <node pkg="traversability_mapping" type="traversability_prm"     name="traversability_prm"     output="screen"/>
+  <!-- <node pkg="traversability_mapping" type="traversability_path"    name="traversability_path"    output="screen"/> -->
+  
+  
+  <!--- Run Move Base -->
+  <include file="$(find aggressive-navigation)/launch/include/move_base/move_base.launch.xml" />
+
+  <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+    <param name="resolution" value="1" />
+    <param name="frame_id" type="string" value="map" />
+    <!-- maximum range to integrate (speedup!) -->
+    <param name="sensor_model/max_range" value="5.0" />
+    <!-- data source to integrate (PointCloud2) -->
+    <remap from="cloud_in" to="/velodyne_points" />
+  </node>
+
+  <!-- Octomap PointCloud2 Publisher -->
+  <node pkg="aggressive-navigation" type="traversability_height"  name="traversability_height"  output="screen"/>
+
+  <!-- planar_map -->
+  <node pkg="aggressive-navigation" type="planar_map" name="planar_map" output="screen" launch-prefix="xterm -e gdb --args">
+    <param name="layer" type="double" value="0.0" />
+  </node>
+  
+</launch>

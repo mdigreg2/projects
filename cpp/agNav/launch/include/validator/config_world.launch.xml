@@ -1,0 +1,17 @@
+<launch>
+
+  <!-- TODO: Use launch_prefix tag from below link to hack parameter to arg conversion in kinetic -->
+  <!-- http://answers.ros.org/question/213145/use-rosparam-get-in-launch-file/ -->
+
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find aggressive-navigation)/launch/include/rosconsole/rosconsole_warn.conf"/>
+  
+  <arg name="world_name" default="$(find aggressive-navigation)/worlds/test.world" />
+
+  <!-- Launch Gazebo with the specified world -->
+  <!-- World file is specified in empty_world.launch by accessing the rosparam server via bash -->
+  <include file="$(find aggressive-navigation)/launch/include/gazebo/empty_world.launch">
+    <arg name="paused" value="true" />
+    <arg name="debug" value="0" />
+  </include>
+  
+</launch>

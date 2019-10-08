@@ -1,0 +1,12 @@
+path_planner_all:
+- '$(find aggressive-navigation)/launch/include/path_planner/prm.launch.xml'
+- '$(find aggressive-navigation)/launch/include/path_planner/pc_path.launch.xml'
+
+path_planner_prm:
+- '$(find aggressive-navigation)/launch/include/path_planner/prm.launch.xml'
+
+path_planner_pc_path:
+- '$(find aggressive-navigation)/launch/include/path_planner/pc_path.launch.xml'
+
+path_planner_move_base:
+- '$(find aggressive-navigation)/launch/include/path_planner/move_base.launch.xml'

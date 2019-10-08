@@ -1,0 +1,236 @@
+# #+TITLE: Test Documentation for Aggressive Navigation Package
+# #+AUTHOR: Paul Szenher, Michael DiGregorio, Jonathan Gomis
+
+#+OPTIONS: ^:nil
+#+SETUPFILE: ./setup/theme-readtheorg-local.setup
+
+* Abstract
+The purpose of this package is to provide a generalized framework for LIDAR-equipped ground vehicles to navigate in previously unmapped environments.
+As the objective is to simply come up with a functional representation of traversable vs nontraversable ground, the robot will not be focused on mapping the world around it.
+It will be focused on classifying the world around it as quickly as possible. This will be achieved through 3D convolution of a 3D kernel through a generated occupancy map of the environment. This kernel represents the "minimum traversable unit" for the ground vehicle. It is made of a volume of free space large enough to fully encapsulate the robot,but not much larger, resting on occupied space of the same XY cross-sectional area. 
+
+* Navigation Benchmarking
+
+* Traversability Octomap
+** Kernel Convolution
+TODO: modify kernel modification to take into account:
+- node merging only if traversability are within threshold of one another
+- node creation/thresholding at edges of tree
+** TraversabilityOcTree
+*** Pruning Errors
+**** Node Initialization
+     Timing between node being initialized and determination of whether or not it can be merged..
+It nodes are first instantiated with an imbued "proba" value of 0.0. When insertScan is called the TraversabilityOcTree is updated to reflect the occupancy of the robot's local area. The scanned region is then pruned with respect to occupancy and traversability. Unfortunately, this pruning comaprison occurs before kernel iteration is initiated. This means that the "proba" values of all of the scanned nodes are all 0.0 (or whatever the default value is). As a result, nodes are marked as equally traversable and pruned by the system. An attempt was made to fix this by moving the prune function call from TraversabilityOctomapServer.cpp's insertScan to publishAll. This did not solve the issue.
+**** Revisiting of Nodes
+Once nodes are merged they are not being revisited properly. The symptom we observe is a plane of nodes (some of which are merged) that contain 'perfect' traversability scores.  This plane is occasionally updated given motion, but on the whole does not change in any meaningful way.
+**** Parent Node Value
+     Given a set of 8 child nodes we can update the tree and keep it so that the parent nodes traversability is some function of the child nodes traversability. The easiest function is an arithmetic mean, however sigmoid functions and max, mins of child nodes may be used.  The representation used for parent nodes will drive how parent nodes can be used in simplification of path planning computation.  This can save convolution time if we are aware that all children of a parnet are nontraversable.  
+     
+** TraversabilityOctomapServer
+** OcTreeKey
+OcTreeKey is a container class for internal key addressing.  The keys count the number of cells (voxels) from the origin as discrete address of a voxel.  See OcTreeBaseImpl::coordToKey() and OcTreeBaseImpl::keyToCoord() for conversions.  
+
+*** OcTreeKey Data Structure
+OcTreeKey stores a single array of length 3 of type ~key_type~ internally.  The 3 indices of this array are each calculated as a function of the float value of the x, y, or z coordinate respectively.  Each coordinate value is operated upon via the following simple function (so long as the target node is at max tree depth):
+
+#+BEGIN_SRC C++
+/// Converts from a single coordinate into a discrete key
+inline key_type coordToKey(double coordinate) const{
+  return ((int) floor(resolution_factor * coordinate)) + tree_max_val;
+}
+#+END_SRC
+
+If the target node key is not at max depth, the following function is invoked, which utilizes bit shifting:
+
+#+BEGIN_SRC C++ 
+  template <class NODE,class I>
+  inline key_type OcTreeBaseImpl<NODE,I>::coordToKey(double coordinate, unsigned depth) const{
+    assert (depth <= tree_depth);
+    int keyval = ((int) floor(resolution_factor * coordinate));
+
+    unsigned int diff = tree_depth - depth;
+    if(!diff) // same as coordToKey without depth
+      return keyval + tree_max_val;
+    else // shift right and left => erase last bits. Then add offset.
+      return ((keyval >> diff) << diff) + (1 << (diff-1)) + tree_max_val;
+  }
+#+END_SRC
+
++Observing how the value of the key is set, it is clear that the position of the first high bit of the key determines the depth of the node pointed to by the key.  At the max depth, the MSB of the key is set, high, and the 15 remaining bits are used to set position.  Performing any number of bit shifts right changes the position of the first high bit, and thus halves the depth and resolution by that number of shifts.+
+The above assumption is wrong, tree_max_val bit is always set, with the remaining bits used for position setting.  This assumedly allows keys to retain their value indepenent of depth, with additional info for further discretization being added via setting less and less significant bits.
+
+Each key value stores effectively the raw value of position of the voxel in x, y, and z measured in units of voxels.  A value of 32768 (only MSB set) is the center of the tree space.  
+
+**** key_type
+The ~key_type~ datatype is simply a typedef of a ~uint16_t~ type.  Therefore, the array of ~key_type~ values stored in ~OcTreeKey~ is simply an array of ~uint16_t~.
+
+**** tree_max_val
+The maximum positive offset, in max depth nodes, that is possible for the tree.  This is by default statically set to 32768 at initialization in a standard OcTree.  This is because the default tree is 16 octal recursions deep, resulting in $\frac{8^{16}}{2} = 32768$.
+
+*** Efficient Iteration
+TODO: Find how child node index correlates to position in octal
+**** Parent
+***** adjustKeyAtDepth
+The ~adjustKeyAtDepth~ function adjusts a 3D key from the lowest level to correspond to a higher depth (by shifting the key values).  It is thus a powerful tool for acquiring a parent (or higher) node from a child.
+#+BEGIN_SRC C++
+  template <class NODE,class I>
+  key_type OcTreeBaseImpl<NODE,I>::adjustKeyAtDepth(key_type key, unsigned int depth) const{
+    unsigned int diff = tree_depth - depth;
+
+    if(diff == 0)
+      return key;
+    else
+      return (((key-tree_max_val) >> diff) << diff) + (1 << (diff-1)) + tree_max_val;
+  }
+#+END_SRC
+This function takes a ~key_type~ argument, but there exists an inline caller that transforms a full ~OcTreeKey~ into 3 separate calls to this function automatically.
+**** Child
+***** computeChildKey
+~computeChildKey~ passes by reference the value of a node's child's key given the parent key, index in child array, and center_offset_key
+****** center_offset_key
+~center_offset_key~ is calculated via the following bit shift:
+#+BEGIN_SRC C++
+key_type center_offset_key = this->tree_max_val >> (depth + 1);
+#+END_SRC
+
+***** computeChildIdx
+The index of a child node within a node can be found via the ~computeChildIdx~ function, passed a key and the parent node depth
+NOTE: the depth value here may not be normal, review how bit shift function works to verify:
+#+BEGIN_SRC C++
+  /// generate child index (between 0 and 7) from key at given tree depth
+  inline uint8_t computeChildIdx(const OcTreeKey& key, int depth){
+    uint8_t pos = 0;
+    if (key.k[0] & (1 << depth)) 
+      pos += 1;
+    
+    if (key.k[1] & (1 << depth)) 
+      pos += 2;
+    
+    if (key.k[2] & (1 << depth)) 
+      pos += 4;
+    
+    return pos;
+  }
+#+END_SRC
+**** Neighbor
+
+** Visualization
+@see OcTreeBaseImpl::coordToKey() and OcTreeBaseImpl::keyToCoord() for conversions.Due to the complex 3-dimensional form of the traversability information calculated here, special care must be taken to ensure that the visual representation of data is clear.  
+
+In order to cleanly visualize traversability voxels, the following considerations must be taken:
+- Node color must be driven by traversability value
+  - This may eventually use a more robust color specturm, but for now is limited to grayscale
+- Node opacity must be configurable
+  - Being that traversabilty is calculated for occupied and free-space nodes, the full traversability representation is a large, solid block of voxels
+  - In order to view the valuable, highly traversable nodes, less interesting nodes must be configured to be hidden based upon value
+
+*** Methods
+A series of visualization methods are available for this type of data, discussed in the following subsections:
+
+**** [[http://wiki.ros.org/pcl/Overview][Point Cloud]]
+The simplest form of visualization format, [[http://docs.ros.org/melodic/api/sensor_msgs/html/msg/PointCloud2.html][PointCloud2]] is a ros message type that enables visualization in rviz of a series of points in space.  Points in this form must share the same size, opacity, and color (unless they specially encode color value with a special point cloud type).  This type is useful for naive visualizations, but is not robust for the extraction of more interesting data.
+
+**** [[http://wiki.ros.org/rviz/DisplayTypes/Marker][Marker Array]]
+Marker arrays are a [[http://docs.ros.org/melodic/api/visualization_msgs/html/msg/MarkerArray.html][ROS message type]] that encode information relevant to visualization.  This includes (notably to this applicaiton) position, shape, size, color, and opacity.  This datatype allows us to visualize cubic voxels equal in size to their corresponding octree nodes, with specified color and transparency values.  
+
+Unfortunately, assignment of transparency (alpha value) in this framework for individual voxels causes graphical issues displayed in the following image:
+
+[[./images/marker_array_alpha.png]]
+
+With this being the case, this visualization framework serves well as a simple visualizer for nodes colored with traversability values, but a poor choice for representing with transparency.
+
+**** [[http://docs.ros.org/kinetic/api/rviz_plugin_tutorials/html/display_plugin_tutorial.html][Rviz Plugin]]
+To recieve the most customized output of visual data under ROS, a plugin can be writen under Rviz to enable more complex and customized control of how data is visualized.  Outwardly similar in appearance to a well formed Marker Array, the output of an Rviz plugin can be further customized at runtime with custom fields present under the message subscriber listing.
+
+An Rviz plugin [[https://github.com/OctoMap/octomap_rviz_plugins][already exists for traditional Octomaps]], and can be trivially expanded not only for additional octomap customizations, but also new Rviz GUI customization fields. 
+
+Setting of individual alpha values for an Rviz point cloud (a data type well tuned to the desired output) can be achieved via the ~setAlpha~ class fucntion, by passing the second argument, ~per_point_alpha~, as ~true~.  This function can be seen in rviz github [[https://github.com/ros-visualization/rviz/blob/melodic-devel/src/rviz/ogre_helpers/point_cloud.cpp][here for reference]].  Unfortunately, even with this direct plugin implementation, graphical issues still persist when layering varying opacity values.
+
+It is intended that utilizing low-level Rviz library access available to a plugin will serve to avoid the graphical issues encountered by the Marker Array under varied opacity conditions.  [[https://github.com/ros-visualization/rviz/pull/1280][A pull request]] to the Rviz github displays the source of this problem is not one limited to Marker Array objects, but instead to any objects with individually set opacities under the Rviz OGRE framework.  This is revealed to be a feature, as the proposed solution causes additional visualization issues.  However, the graphical errors brought about by the proposed change may not heavily impact visualization for this use case.  An implementation should be possible, similar to the above pull request, in which  ~material->setSceneBlending( Ogre::SBT_TRANSPARENT_ALPHA );~ and ~material->setDepthWriteEnabled( true );~ can be set simultaneously, likely working well for this application.
+
+For this reason, the above model has been implemented by reimplementing the point_cloud Rviz OGRE helper directly, visible in [[../include/octomap_rviz_plugins/point_cloud_transparency.h][point_cloud_transparency.h]] and [[../src/octomap_rviz_plugins/point_cloud_transparency.cpp][point_cloud_transparency.cpp]].  Using these, alongside the modificaitons to the octomap rviz plugin in [[../src/octomap_rviz_plugins/occupancy_grid_display.cpp][occupancy_grid_display.cpp]], the function calls to set the desired material rendering values were exposed at runtime as Rviz topic properties.  ~setDepthWriteEnabled~ and ~setSceneBlending~ can therefore be set to suit varying conditions during any usage of the plugin within Rviz.
+
+***** [[https://www.ogre3d.org/docs/manual18/manual_16.html#depth_005fwrite][Depth Write]]
+The depth write property under OGRE determines if a given pass or material will be rendered with [[https://en.wikipedia.org/wiki/Z-buffering][depth buffer]] writing on or off.  
+
+***** [[https://www.ogre3d.org/docs/manual18/manual_16.html#scene_005fblend][Scene Blend]]
+Scene blending under OGRE determines how an object will be blended with the existing scene contents.  In the case of multi-layered transparency, alpha_blend must be used.  For opaque objects, addition.  Modulation is also implemented in the plugin, but fails under the conditions reqauired for our use.
+
+**** [[http://wiki.ros.org/octovis][OctoVis]]
+Independed of the above listed options due to its lack of reliance on Rviz and ROS in general, OctoVis is a potential choice for visualizing very large Octomaps that exceed reasonable size for representation in Rviz.  It is also useful for viewing octomaps stored as files.
+
+The development effort necessary, and the potential gain from modifying OctoVis has not yet been examined, but such an analysis should be performed going forward.  Particularly, a it may serve a strong purpose if efforts to implement partially-transparent voxels ultimately fails under Rviz.
+
+* Global and Local costmaps
+The local costmap takes the global costmap as static layer while the global takes the occupancy map directly. Those params, as the update and publish frequencies or the size of the maps, can be modified in the yaml files at launch/params/move_base/map_nav_params. However, since the global costmap is a static map, its size follows the occupancy map's one. It should then be modified directly in the traversability-mapping package, in utility.h (2D Map Publish Params, line 108). 
+
+* Configuration
+
+* Installation
+** Dependencies
+The dependencies for this package are listed as follows:
+- [[https://wiki.ros.org/kinetic/Installation][~ROS Kinetic~]]
+- [[https://catkin-tools.readthedocs.io/en/latest/installing.html][~Catkin~]]
+- [[https://github.com/OctoMap/octomap][~octomap~]]
+- [[https://github.com/OctoMap/octomap_mapping][~octomap_server~]]
+- [[https://github.com/RobustFieldAutonomyLab/LeGO-LOAM][~LeGO-LOAM~]]
+- [[https://github.com/RobustFieldAutonomyLab/traversability_mapping][~TraversabilityMapping~]]
+- [[https://github.com/TixiaoShan/jackal_velodyne][~jackal_velodyne~]]
+
+*** Using apt package manager
+***** Install Dependencies
+
+ROS Kinetic:
+#+BEGIN_SRC bash
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+#+END_SRC
+#+BEGIN_SRC bash
+sudo apt update
+#+END_SRC
+
+Full install of ROS Kinetic, rqt, rviz, robot generic libraries, 2D/3D simulators, navigation and 2D/3D perception
+#+BEGIN_SRC bash
+sudo apt install ros-kinetic-desktop-full
+#+END_SRC
+
+Catkin:
+#+BEGIN_SRC bash
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" > /etc/apt/sources.list.d/ros-latest.list'
+wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+sudo apt update
+sudo apt install python-catkin-tools
+#+END_SRC
+
+Setting up a Catkin Workspace:
+#+BEGIN_SRC bash
+source /opt/ros/kinetic/setup.bash
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws
+catkin init
+#+END_SRC
+
+Octomap, Octomap Server, Octomap ROS Jackal_Velodyne:
+#+BEGIN_SRC bash
+sudo apt install ros-kinetic-octomap* ros-kinetic-jackal-* ros-kinetic-velodyne-*
+#+END_SRC
+
+TraversabilityMapping, LeGo-LOAM, Jackal_Velodyne Compilation:
+#+BEGIN_SRC bash
+cd ~/catkin_ws/src
+git clone https://github.com/TixiaoShan/jackal_velodyne.git
+git clone https://github.com/RobustFieldAutonomyLab/LeGO-LOAM.git
+git clone https://github.com/RobustFieldAutonomyLab/traversability_mapping.git
+git
+cd ..
+catkin build -j1
+#+END_SRC
+
+**** Install Aggressive Navigation
+#+BEGIN_SRC bash
+cd ~/catkin_ws/src
+git clone https://github.com/pszenher/aggressive-navigation.git
+cd ..
+catkin build
+#+END_SRC
+
+** Usage

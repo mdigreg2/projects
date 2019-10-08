@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Test Documentation for Aggressive Navigation Package</title>
+<!-- 2019-07-23 Tue 16:04 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Paul Szenher, Michael DiGregorio, Jonathan Gomis" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Test Documentation for Aggressive Navigation Package</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Abstract</a></li>
+<li><a href="#sec-2">2. Navigation Benchmarking</a></li>
+<li><a href="#sec-3">3. Traversability Octomap</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Kernel Convolution</a></li>
+<li><a href="#sec-3-2">3.2. TraversabilityOcTree</a>
+<ul>
+<li><a href="#sec-3-2-1">3.2.1. Purining Errors</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-3">3.3. TraversabilityOctomapServer</a></li>
+<li><a href="#sec-3-4">3.4. Visualization</a>
+<ul>
+<li><a href="#sec-3-4-1">3.4.1. Methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-4">4. Configuration</a></li>
+<li><a href="#sec-5">5. Installation</a>
+<ul>
+<li><a href="#sec-5-1">5.1. Usage</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Abstract</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The purpose of this package is to provide a generalized framework for LIDAR-equipped ground vehicles to navigate in previously unmapped environments.
+As the objective is to simply come up with a functional representation of traversable vs nontraversable ground, the robot will not be focused on mapping the world around it.
+It will be focused on classifying the world around it as quickly as possible. This will be achieved through 3D convolution of a 3D kernel through a generated occupancy map of the environment. This kernel represents the "minimum traversable unit" for the ground vehicle. It is made of a volume of free space large enough to fully encapsulate the robot,but not much larger, resting on occupied space of the same XY cross-sectional area. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Navigation Benchmarking</h2>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Traversability Octomap</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Kernel Convolution</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+TODO: modify kernel modification to take into account:
+</p>
+<ul class="org-ul">
+<li>node merging only if traversability are within threshold of one another
+</li>
+<li>node creation/thresholding at edges of tree
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> TraversabilityOcTree</h3>
+<div class="outline-text-3" id="text-3-2">
+</div><div id="outline-container-sec-3-2-1" class="outline-4">
+<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> Purining Errors</h4>
+</div>
+</div>
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> TraversabilityOctomapServer</h3>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Visualization</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+Due to the complex 3-dimensional form of the traversability information calculated here, special care must be taken to ensure that the visual representation of data is clear.  
+</p>
+
+<p>
+In order to cleanly visualize traversability voxels, the following considerations must be taken:
+</p>
+<ul class="org-ul">
+<li>Node color must be driven by traversability value
+<ul class="org-ul">
+<li>This may eventually use a more robust color specturm, but for now is limited to grayscale
+</li>
+</ul>
+</li>
+<li>Node opacity must be configurable
+<ul class="org-ul">
+<li>Being that traversabilty is calculated for occupied and free-space nodes, the full traversability representation is a large, solid block of voxels
+</li>
+<li>In order to view the valuable, highly traversable nodes, less interesting nodes must be configured to be hidden based upon value
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-sec-3-4-1" class="outline-4">
+<h4 id="sec-3-4-1"><span class="section-number-4">3.4.1</span> Methods</h4>
+<div class="outline-text-4" id="text-3-4-1">
+<p>
+A series of visualization methods are available for this type of data, discussed in the following subsections:
+</p>
+</div>
+
+<ol class="org-ol"><li><a id="sec-3-4-1-1" name="sec-3-4-1-1"></a><a href="http://wiki.ros.org/pcl/Overview">Point Cloud</a><br  /><div class="outline-text-5" id="text-3-4-1-1">
+<p>
+The simplest form of visualization format, <a href="http://docs.ros.org/melodic/api/sensor_msgs/html/msg/PointCloud2.html">PointCloud2</a> is a ros message type that enables visualization in rviz of a series of points in space.  Points in this form must share the same size, opacity, and color (unless they specially encode color value with a special point cloud type).  This type is useful for naive visualizations, but is not robust for the extraction of more interesting data.
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-1-2" name="sec-3-4-1-2"></a><a href="http://wiki.ros.org/rviz/DisplayTypes/Marker">Marker Array</a><br  /><div class="outline-text-5" id="text-3-4-1-2">
+<p>
+Marker arrays are a <a href="http://docs.ros.org/melodic/api/visualization_msgs/html/msg/MarkerArray.html">ROS message type</a> that encode information relevant to visualization.  This includes (notably to this applicaiton) position, shape, size, color, and opacity.  This datatype allows us to visualize cubic voxels equal in size to their corresponding octree nodes, with specified color and transparency values.  
+</p>
+
+<p>
+Unfortunately, assignment of transparency (alpha value) in this framework for individual voxels causes graphical issues displayed in the following image:
+</p>
+
+
+<div class="figure">
+<p><img src="./images/marker_array_alpha.png" alt="marker_array_alpha.png" />
+</p>
+</div>
+
+<p>
+With this being the case, this visualization framework serves well as a simple visualizer for nodes colored with traversability values, but a poor choice for representing with transparency.
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-1-3" name="sec-3-4-1-3"></a><a href="http://docs.ros.org/kinetic/api/rviz_plugin_tutorials/html/display_plugin_tutorial.html">Rviz Plugin</a><br  /><div class="outline-text-5" id="text-3-4-1-3">
+<p>
+To recieve the most customized output of visual data under ROS, a plugin can be writen under Rviz to enable more complex and customized control of how data is visualized.  Outwardly similar in appearance to a well formed Marker Array, the output of an Rviz plugin can be further customized at runtime with custom fields present under the message subscriber listing.
+</p>
+
+<p>
+An Rviz plugin <a href="https://github.com/OctoMap/octomap_rviz_plugins">already exists for traditional Octomaps</a>, and can be trivially expanded not only for additional octomap customizations, but also new Rviz GUI customization fields. 
+</p>
+
+<p>
+Setting of individual alpha values for an Rviz point cloud (a data type well tuned to the desired output) can be achieved via the <code>setAlpha</code> class fucntion, by passing the second argument, <code>per_point_alpha</code>, as <code>true</code>.  This function can be seen in rviz github <a href="https://github.com/ros-visualization/rviz/blob/melodic-devel/src/rviz/ogre_helpers/point_cloud.cpp">here for reference</a>.  Unfortunately, even with this direct plugin implementation, graphical issues still persist when layering varying opacity values.
+</p>
+
+<p>
+It is intended that utilizing low-level Rviz library access available to a plugin will serve to avoid the graphical issues encountered by the Marker Array under varied opacity conditions.  <a href="https://github.com/ros-visualization/rviz/pull/1280">A pull request</a> to the Rviz github displays the source of this problem is not one limited to Marker Array objects, but instead to any objects with individually set opacities under the Rviz OGRE framework.  This is revealed to be a feature, as the proposed solution causes additional visualization issues.  However, the graphical errors brought about by the proposed change may not heavily impact visualization for this use case.  An implementation should be possible, similar to the above pull request, in which  <code>material-&gt;setSceneBlending( Ogre::SBT_TRANSPARENT_ALPHA );</code> and <code>material-&gt;setDepthWriteEnabled( true );</code> can be set simultaneously, likely working well for this application.
+</p>
+
+<p>
+For this reason, the above model has been implemented by reimplementing the point<sub>cloud</sub> Rviz OGRE helper directly, visible in <a href="../include/octomap_rviz_plugins/point_cloud_transparency.h">point<sub>cloud</sub><sub>transparency</sub>.h</a> and <a href="../src/octomap_rviz_plugins/point_cloud_transparency.cpp">point<sub>cloud</sub><sub>transparency</sub>.cpp</a>.  Using these, alongside the modificaitons to the octomap rviz plugin in <a href="../src/octomap_rviz_plugins/occupancy_grid_display.cpp">occupancy<sub>grid</sub><sub>display</sub>.cpp</a>, the function calls to set the desired material rendering values were exposed at runtime as Rviz topic properties.  <code>setDepthWriteEnabled</code> and <code>setSceneBlending</code> can therefore be set to suit varying conditions during any usage of the plugin within Rviz.
+</p>
+</div>
+
+<ol class="org-ol"><li><a id="sec-3-4-1-3-1" name="sec-3-4-1-3-1"></a><a href="https://www.ogre3d.org/docs/manual18/manual_16.html#depth_005fwrite">Depth Write</a><br  /><div class="outline-text-6" id="text-3-4-1-3-1">
+<p>
+The depth write property under OGRE determines if a given pass or material will be rendered with <a href="https://en.wikipedia.org/wiki/Z-buffering">depth buffer</a> writing on or off.  
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-1-3-2" name="sec-3-4-1-3-2"></a><a href="https://www.ogre3d.org/docs/manual18/manual_16.html#scene_005fblend">Scene Blend</a><br  /><div class="outline-text-6" id="text-3-4-1-3-2">
+<p>
+Scene blending under OGRE determines how an object will be blended with the existing scene contents.  In the case of multi-layered transparency, alpha<sub>blend</sub> must be used.  For opaque objects, addition.  Modulation is also implemented in the plugin, but fails under the conditions reqauired for our use.
+</p>
+</div>
+</li></ol>
+</li>
+
+<li><a id="sec-3-4-1-4" name="sec-3-4-1-4"></a><a href="http://wiki.ros.org/octovis">OctoVis</a><br  /><div class="outline-text-5" id="text-3-4-1-4">
+<p>
+Independed of the above listed options due to its lack of reliance on Rviz and ROS in general, OctoVis is a potential choice for visualizing very large Octomaps that exceed reasonable size for representation in Rviz.  It is also useful for viewing octomaps stored as files.
+</p>
+
+<p>
+The development effort necessary, and the potential gain from modifying OctoVis has not yet been examined, but such an analysis should be performed going forward.  Particularly, a it may serve a strong purpose if efforts to implement partially-transparent voxels ultimately fails under Rviz.
+</p>
+</div>
+</li></ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Configuration</h2>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Installation</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Usage</h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Paul Szenher, Michael DiGregorio, Jonathan Gomis</p>
+<p class="date">Created: 2019-07-23 Tue 16:04</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

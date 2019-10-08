@@ -1,0 +1,30 @@
+<launch>
+
+  <!-- <!-\- Sets log level for move_base to warn to prevent flood of useless output -\-> -->
+  <env name="ROSCONSOLE_CONFIG_FILE" value="$(find aggressive-navigation)/launch/include/rosconsole/rosconsole_warn.conf"/>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/map_nav_params/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/map_nav_params/global_costmap_params.yaml" command="load" />
+    
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find aggressive-navigation)/launch/params/move_base/move_base_params.yaml" command="load" />
+    
+    <param name="base_global_planner" type="string" value="navfn/NavfnROS" />
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+    <!-- Unclear what how significant difference betweeen base_local_planner and dwa_local_planner are.
+    Base rotation under dwa is extremely weak in intensity for unknown reason.  In future, should look into params-->
+    <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/> -->
+    
+    <remap from="odom" to="odometry/filtered" />
+
+  </node>
+
+  <!-- <node pkg="rosservice" type="rosservice" name="global_loc" args="call -\-wait /move_base/set_logger_level {logger: 'rosout', level: 'warn'}"/> -->
+
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="traversability_mapping" type="traversability_prm"     name="traversability_prm"     output="screen"/>
+</launch>

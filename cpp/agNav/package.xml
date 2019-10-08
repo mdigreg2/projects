@@ -1,0 +1,118 @@
+<package format="2">
+  <name>aggressive-navigation</name>
+  <version>0.0.1</version>
+  <description>aggressive-navigation</description>
+
+  <maintainer email="pszenher@stevens.edu">Paul Szenher</maintainer>
+
+  <license>GPLv3</license>
+
+  <author >Paul Szenher</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>pcl_conversions</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>octomap</build_depend>
+  <build_depend>octomap_msgs</build_depend>  
+  <build_depend>octomap_ros</build_depend>
+  <!-- <build_depend>dynamic_reconfigure</build_depend> -->
+  <!-- <build_depend>nodelet</build_depend> -->
+  <build_depend>rviz</build_depend>
+  <build_depend>libpcl-all-dev</build_depend>
+  <build_depend>octomap_server</build_depend>
+  <build_depend>qtbase5-dev</build_depend>
+  <build_depend>libqt5-core</build_depend>
+  <build_depend>libqt5-widgets</build_depend>
+  
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>pcl_ros</exec_depend>
+  <exec_depend>pcl_conversions</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>octomap</exec_depend>
+  <exec_depend>octomap_msgs</exec_depend>
+  <exec_depend>octomap_ros</exec_depend>
+  <!-- <exec_depend>dynamic_reconfigure</exec_depend> -->
+  <!-- <exec_depend>nodelet</exec_depend> -->
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>libpcl-all</exec_depend>
+  <exec_depend>octomap_server</exec_depend>
+  <exec_depend>qtbase5-dev</exec_depend>
+  <exec_depend>libqt5-core</exec_depend>
+  <exec_depend>libqt5-widgets</exec_depend>
+
+  <test_depend>rosunit</test_depend>
+  
+  <!-- <build_depend>roscpp</build_depend> -->
+  <!-- <build_depend>rospy</build_depend> -->
+  <!-- <build_depend>ros_bridge</build_depend> -->
+  <!-- <build_depend>tf</build_depend> -->
+  <!-- <build_depend>pcl_ros</build_depend> -->
+  <!-- <build_depend>pcl_conversions</build_depend> -->
+  <!-- <build_depend>cv_bridge</build_depend>   -->
+  <!-- <build_depend>std_msgs</build_depend> -->
+  <!-- <build_depend>pcl_conversion</build_depend> -->
+  <!-- <build_depend>pcl_ros</build_depend> -->
+  <!-- <build_depend>octomap_ros</build_depend> -->
+  <!-- <build_depend>genmsg</build_depend> -->
+  <!-- <build_depend>interactive_markers</build_depend> -->
+  <!-- <build_depend>image_transport</build_depend> -->
+  <!-- <build_depend>elevation_msgs</build_depend> -->
+  <!-- <build_depend>nav_core</build_depend> -->
+  <!-- <build_depend>pluginlib</build_depend> -->
+  <!-- <build_depend>nav_msgs</build_depend> -->
+  <!-- <build_depend>geometry_msgs</build_depend> -->
+  <!-- <build_depend>sensors_msgs</build_depend> -->
+  <!-- <build_depend>std_msgs</build_depend> -->
+  <!-- <build_depend>cv_bridge</build_depend> -->
+  <!-- <build_depend>pcl_conversions</build_depend> -->
+  <!-- <build_depend>pcl_ros</build_depend> -->
+  <!-- <build_depend>tf</build_depend> -->
+  <!-- <build_depend>ros_bridge</build_depend> -->
+
+  
+  <!-- <exec_depend>rospy</exec_depend> -->
+  <!-- <exec_depend>roscpp</exec_depend> -->
+  <!-- <exec_depend>ros_bridge</exec_depend> -->
+  <!-- <exec_depend>tf</exec_depend> -->
+  <!-- <exec_depend>pcl_ros</exec_depend> -->
+  <!-- <exec_depend>pcl_conversions</exec_depend> -->
+  <!-- <exec_depend>cv_bridge</exec_depend> -->
+  <!-- <exec_depend>std_msgs</exec_depend> -->
+  <!-- <exec_depend>sensors_msgs</exec_depend> -->
+  <!-- <exec_depend>geometry_msgs</exec_depend> -->
+  <!-- <exec_depend>nav_msgs</exec_depend> -->
+  <!-- <exec_depend>pluginlib</exec_depend> -->
+  <!-- <exec_depend>nav_core</exec_depend> -->
+  <!-- <exec_depend>elevation_msgs</exec_depend> -->
+  <!-- <exec_depend>image_transport</exec_depend> -->
+  <!-- <exec_depend>interactive_markers</exec_depend> -->
+  <!-- <exec_depend>gazebo_ros</exec_depend> -->
+  <!-- <exec_depend>gazebo_ros_control</exec_depend> -->
+  <!-- <exec_depend>genmsg</exec_depend> -->
+  <!-- <exec_depend>octomap_ros</exec_depend> -->
+  <!-- <exec_depend>pcl_ros</exec_depend> -->
+  <!-- <exec_depend>pcl_conversion</exec_depend> -->
+  
+  <export>
+      <!-- gazebo_ros_paths_plugin automatically adds these to
+          GAZEBO_PLUGIN_PATH and GAZEBO_MODEL_PATH when you do this export inside
+          the package.xml file. You can than use URIs of type model://my_package/stuff. -->
+      <rviz plugin="${prefix}/plugin_description.xml"/>
+      <gazebo_ros                                                                 
+          gazebo_plugin_path="${prefix}/lib"
+          gazebo_model_path="${prefix}/models" />
+	  <!-- gazebo_media_path="${prefix}" -->
+  </export>
+  
+</package>
