@@ -1,7 +1,7 @@
 #+TITLE: Aggressive Navigation
 #+AUTHOR: Paul Szenher, Michael DiGregorio, Jonathan Gomis
 
-This repository contains code for an aggressive navigation system for ROS compatible UGVs.  The package serves to plan valid paths for a ground vehicle across large stretches of sparsely-sensed terrain.
+This repository contains code for an aggressive navigation system for ROS compatible UGVs.  The package serves to plan valid paths for a ground vehicle across large stretches of sparsely-sensed terrain. This partially contains code from the Stevens Robust Field Autonomy Lab and Octomap
 * Note of changes 
 Changed conversions.h to include message handling for TraversabilityOcTree
 changed octomap_msgs to include TraversabilityOcTree.h
