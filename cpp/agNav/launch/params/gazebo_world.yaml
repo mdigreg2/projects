@@ -1,7 +1,0 @@
-gazebo_world_all:
-- '$(find aggressive-navigation)/worlds/parking_lot.world'
-- '$(find aggressive-navigation)/worlds/office_2.world'
-- '$(find aggressive-navigation)/worlds/office.world'
-- '$(find aggressive-navigation)/worlds/boxes.world'
-- '$(find aggressive-navigation)/worlds/cylinders.world'
-- '$(find aggressive-navigation)/worlds/jackal_race.world'

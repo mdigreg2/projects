@@ -1,7 +1,0 @@
-<!-- TODO: Determine what path planners are available in move base and how to parameterize them -->
-<launch>
-    <!--- Run Planner Costmap -->
-  <node pkg="costmap_2d" type="costmap_2d_node" name="planner_costmap" output="log">
-        <rosparam file="$(find carla_explo)/params/planner_costmap.yaml" command="load" ns="costmap" />
-  </node>
-</launch>
